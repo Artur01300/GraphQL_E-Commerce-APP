@@ -88,27 +88,49 @@ const typeDefs = gql`
     type Query {
         hello: String,
         products: [Products!]!
+        product(id: ID): Products
     }
 
     type Products{
         name: String!
         description: String!
         quantity: Int!
+        image: String!
         price: Float!
         onSale: Boolean! 
     }
 `;
 
 const resolvers = {
-    Query: {
-        hello: () => {
-            return "hello";
-        },
-
-        products: () => {
-            return products;
+    /* 
+        Query: {
+            hello: () => {
+                return "hello";
+            },
+            products: () => {
+                return products;
+            }
         }
-    } 
+    */
+    Query: {
+        hello: () => "hello",
+        products: () => products,
+        product: (parent, args, context) => {
+            /*
+                Resolvers a 3 paramètres : parent, arges, context
+                arge contient tout les paramètres.
+                Il suffie de console loger pour les voir : console.log(args);
+            */
+
+            const argsId = args.id;
+            const product = products.find(product => product.id === argsId);
+
+            // si on a pas trouver le product id, on retourne null, si on a trouver le product id alors on retourne le produit
+            if(!product) return null;
+            return product;
+
+        }
+    }
 }
 
 const server = new ApolloServer({
