@@ -1,23 +1,25 @@
 const { ApolloServer, gql } = require("apollo-server");
 
 
-//String, Int, Float, Boolean //
-
-
 /*
-    Si dans le typeDefs on précise pas  < ! > signifie que les valeurs par dépfaut peuvent être aussi retourné < null >
-    Voir dons typeDefs/Query/hello :   
-        Résultat : { "data": { "hello": null } }
+    hello: [String!] = on veut uniquement string dans le tableau
+    exemple:
+            hello: () => {
+                return ["hello", "Comme", "test", null];
+            },
 
-    - Si on pricise ( hello: String!) alors on peux pas retourné en null.
-        Résultat :
-        {"errors": [{"message": "Cannot return null for non-nullable field Query.hello.", 
+    hello: [String!]! = on veut que le tableau soit stiring et pas string ou null
+    exemple: 
+            hello: () => {
+                return null;
+            },
+
 */
 
 const typeDefs = gql`
     type Query {
-        # hello: String
-        hello: String!
+        # hello: [String!]
+        hello: [String!]!
         numberOfAnimals: Int
         price: Float
         isCool: Boolean
@@ -27,9 +29,11 @@ const typeDefs = gql`
 const resolvers = {
     Query: {
         hello: () => {
-            // return null;
-            return "World !";
+            return ["hello", "Comme", "test", "null"];
         },
+        // hello: () => {
+        //     return null;
+        // },
         numberOfAnimals: () => {
             return 4256;
         },
