@@ -7,28 +7,35 @@ const { ApolloServer, gql } = require("apollo-server");
 
 const typeDefs = gql`
     type Query {
-        hello: [String!]!
-        numberOfAnimals: Int
-        price: Float
-        isCool: Boolean
+        hello: String,
+        products: [Products!]!
     }
-`
+
+    type Products{
+        name: String!
+        description: String!
+        quantity: Int!
+        price: Float!
+        onSale: Boolean! 
+    }
+`;
 
 const resolvers = {
     Query: {
         hello: () => {
-            return ["hello", "Comme", "test", "null"];
+            return "hello";
         },
-        numberOfAnimals: () => {
-            return 4256;
-        },
-        price: () => {
-            return 58965.6589;
-        },
-        isCool: () => {
-            return true;
+
+        products: () => {
+            return [{
+                name: "Moto",
+                description: "Moto pour les montagne",
+                quantity: 45,
+                price: 45.65,
+                onSale: false
+            }];
         }
-    }
+    } 
 }
 
 const server = new ApolloServer({
