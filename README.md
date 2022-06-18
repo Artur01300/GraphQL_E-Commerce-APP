@@ -29,3 +29,4 @@
 ## Node.js
 
 * apollo-server graphql
+* nodemon

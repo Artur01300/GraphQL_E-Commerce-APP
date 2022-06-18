@@ -2,23 +2,11 @@ const { ApolloServer, gql } = require("apollo-server");
 
 
 /*
-    hello: [String!] = on veut uniquement string dans le tableau
-    exemple:
-            hello: () => {
-                return ["hello", "Comme", "test", null];
-            },
-
-    hello: [String!]! = on veut que le tableau soit stiring et pas string ou null
-    exemple: 
-            hello: () => {
-                return null;
-            },
 
 */
 
 const typeDefs = gql`
     type Query {
-        # hello: [String!]
         hello: [String!]!
         numberOfAnimals: Int
         price: Float
@@ -31,9 +19,6 @@ const resolvers = {
         hello: () => {
             return ["hello", "Comme", "test", "null"];
         },
-        // hello: () => {
-        //     return null;
-        // },
         numberOfAnimals: () => {
             return 4256;
         },
