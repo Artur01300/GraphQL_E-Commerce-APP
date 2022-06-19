@@ -1,23 +1,5 @@
 const { ApolloServer, gql } = require("apollo-server");
 
-/* 
-  Comment fair la demande à category et loui associer au products. Exmpl :
-    category(id: "d914aec0-25") {
-      id
-      name
-      products {
-        name,
-        price
-      }
-    }
-
-
-    1 créer type Product pour type Category
-    2 créer propriéter products et lui assigner le type [Product!]!
-    3 Dans le resolvers après type Query ajouter un Category (en majuscule)
-    4 dans < const products > ajouter  categoryId: "34115aac-0ff5-4859-8f43-10e8db23602b", //Garden 
-*/
-
 const products = [
   {
     id: "53a0724c-a416-4cac-ae45-bfaedce1f147",
@@ -99,11 +81,6 @@ const products = [
     onSale: true,
     categoryId: "d914aec0-25b2-4103-9ed8-225d39018d1d" // Sport
   },
-
-  /*
-    dans notre < const categories > on a catégori "Kitchen", "Garden" et "Sporte". Il faut que notre category soit associer avec les porduits < const products >.
-    Pour ce là, dans l'objet on ajoute < categoryId: "d914aec0-25b2-4103-9ed8-225d39018d1d" > qui permet les regroupers dans le catégorie sport ou Garden par exemple
-  */
   {
     id: "47bf3941-9c8b-42c0-9c72-7f3985492a5b",
     name: "Soccer Ball",
@@ -134,12 +111,12 @@ const categories = [
 const typeDefs = gql`
   type Query {
     hello: String,
-    products: [Products!]!
+    products: [Products!]! # type Query
     product(id: ID): Products
     categories: [Category!]!
     category(id: ID!): Category
   }
-  type Products {
+  type Products { 
     name: String!
     description: String!
     quantity: Int!
@@ -147,7 +124,6 @@ const typeDefs = gql`
     price: Float!
     onSale: Boolean! 
   }
-  # type product for type Category
   type Product {
     id: ID!
     name: String!
@@ -155,20 +131,20 @@ const typeDefs = gql`
     quantity: Int!
     image: String!
     price: Float!
-    onSale: Boolean! 
+    onSale: Boolean!
+    category: Category!
   }
   type Category {
     id: ID!
     name: String!
-    # Récupération des produits (type Product). Etap suivant : ajouter nouveau resolvers "Category: {}"
-    products: [Product!]! 
+    products: [Product!]!
   }
 `;
 
 const resolvers = {
   Query: {
     hello: (parent, args, context) => "hello",
-    products: (parent, args, context) => products,
+    products: (parent, args, context) => products, // type Query
     product: (parent, args, context) => {
       const argsId = args.id;
       const product = products.find((product) => product.id === argsId);
@@ -181,20 +157,16 @@ const resolvers = {
       return categories.find((category) => category.id === id);
     },
   },
-  // Création de résolvers pour Category
   Category: {
-    //ici on résolve pour porducts qui se tourve dans type Category
-    products: (parent, args, context) => {  
-      /*
-        ici le but c'est de touver tout les products associer avec cet < Category > et retourner ces produits. Important ! dans type Category
-        le parant est id: ID! name: String!, l'enfant est products: [Product!]!
-        si on console.log(parent), c'est à dire "34115aac-0ff5-4859-8f43-10e8db23602b", on aperçoie que le résulta nous retourne : { id: '34115aac-0ff5-4859-8f43-10e8db23602b', name: 'Garden' }.
-        Danc si on a trouver le parant alors on a les enfants aussi
-      */
-     
-     // Recupère tout les produits appartenant à la catégorie demandé 
+    products: (parent, args, context) => { 
       const categoryId = parent.id;
       return products.filter((product) => product.categoryId === categoryId);
+    }
+  },
+  Product: {
+    category: (parent, args, context) => {
+      const parentId = parent.categoryId;
+      return products.find((product) => product.categoryId === parentId);
     }
   }
 };
