@@ -1,5 +1,23 @@
 const { ApolloServer, gql } = require("apollo-server");
 
+/* 
+  Comment fair la demande à category et loui associer au products. Exmpl :
+    category(id: "d914aec0-25") {
+      id
+      name
+      products {
+        name,
+        price
+      }
+    }
+
+
+    1 créer type Product pour type Category
+    2 créer propriéter products et lui assigner le type [Product!]!
+    3 Dans le resolvers après type Query ajouter un Category (en majuscule)
+    4 dans < const products > ajouter  categoryId: "34115aac-0ff5-4859-8f43-10e8db23602b", //Garden 
+*/
+
 const products = [
   {
     id: "53a0724c-a416-4cac-ae45-bfaedce1f147",
@@ -9,6 +27,7 @@ const products = [
     price: 42.44,
     image: "img-1",
     onSale: false,
+    categoryId: "34115aac-0ff5-4859-8f43-10e8db23602b", //Garden
   },
   {
     id: "c2af9adc-d0b8-4d44-871f-cef66f86f7f6",
@@ -18,6 +37,7 @@ const products = [
     price: 53.5,
     image: "img-2",
     onSale: false,
+    categoryId: "c01b1ff4-f894-4ef2-b27a-22aacc2fca70" //Kitchen
   },
   {
     id: "2c931e7e-510f-49e5-aed6-d6b44087e5a1",
@@ -27,6 +47,7 @@ const products = [
     price: 1.33,
     image: "img-3",
     onSale: true,
+    categoryId: "c01b1ff4-f894-4ef2-b27a-22aacc2fca70" //Kitchen
   },
   {
     id: "404daf2a-9b97-4b99-b9af-614d07f818d7",
@@ -36,6 +57,7 @@ const products = [
     price: 332,
     image: "img-4",
     onSale: false,
+    categoryId: "34115aac-0ff5-4859-8f43-10e8db23602b", //Garden
   },
   {
     id: "6379c436-9fad-4b3f-a427-2d7241f5c1b1",
@@ -45,6 +67,7 @@ const products = [
     price: 23.11,
     image: "img-5",
     onSale: true,
+    categoryId: "34115aac-0ff5-4859-8f43-10e8db23602b", //Garden
   },
   {
     id: "f01bcdec-6783-464e-8f9e-8416830f7569",
@@ -54,6 +77,7 @@ const products = [
     price: 59.99,
     image: "img-6",
     onSale: true,
+    categoryId: "d914aec0-25b2-4103-9ed8-225d39018d1d" // Sport
   },
   {
     id: "a4824a31-5c83-42af-8c1b-6e2461aae1ef",
@@ -63,6 +87,7 @@ const products = [
     price: 427.44,
     image: "img-7",
     onSale: false,
+    categoryId: "d914aec0-25b2-4103-9ed8-225d39018d1d" // Sport
   },
   {
     id: "b553085a-a7e0-4c9b-8a12-f971919c3683",
@@ -72,7 +97,13 @@ const products = [
     price: 77.0,
     image: "img-8",
     onSale: true,
+    categoryId: "d914aec0-25b2-4103-9ed8-225d39018d1d" // Sport
   },
+
+  /*
+    dans notre < const categories > on a catégori "Kitchen", "Garden" et "Sporte". Il faut que notre category soit associer avec les porduits < const products >.
+    Pour ce là, dans l'objet on ajoute < categoryId: "d914aec0-25b2-4103-9ed8-225d39018d1d" > qui permet les regroupers dans le catégorie sport ou Garden par exemple
+  */
   {
     id: "47bf3941-9c8b-42c0-9c72-7f3985492a5b",
     name: "Soccer Ball",
@@ -81,6 +112,7 @@ const products = [
     price: 93.44,
     image: "img-9",
     onSale: false,
+    categoryId: "d914aec0-25b2-4103-9ed8-225d39018d1d" // Sport
   },
 ];
 
@@ -115,38 +147,57 @@ const typeDefs = gql`
     price: Float!
     onSale: Boolean! 
   }
+  # type product for type Category
+  type Product {
+    id: ID!
+    name: String!
+    description: String!
+    quantity: Int!
+    image: String!
+    price: Float!
+    onSale: Boolean! 
+  }
   type Category {
-    id: ID
-    name: String
+    id: ID!
+    name: String!
+    # Récupération des produits (type Product). Etap suivant : ajouter nouveau resolvers "Category: {}"
+    products: [Product!]! 
   }
 `;
-  
+
 const resolvers = {
   Query: {
     hello: (parent, args, context) => "hello",
     products: (parent, args, context) => products,
     product: (parent, args, context) => {
-
       const argsId = args.id;
       const product = products.find((product) => product.id === argsId);
-      
       if(!product) return null;
       return product;
     },
     categories: () => categories,
     category: (parent, args, context) => {
-      // const argsId = args.id;
-      // const category = categories.find(category => category.id == argsId);
-      // if(!category) return null;
-      // return category;
-
-      // const { id } = args  signifie : récupération l'id d'agument depuis l'objet args
       const { id } = args;
       return categories.find((category) => category.id === id);
-
+    },
+  },
+  // Création de résolvers pour Category
+  Category: {
+    //ici on résolve pour porducts qui se tourve dans type Category
+    products: (parent, args, context) => {  
+      /*
+        ici le but c'est de touver tout les products associer avec cet < Category > et retourner ces produits. Important ! dans type Category
+        le parant est id: ID! name: String!, l'enfant est products: [Product!]!
+        si on console.log(parent), c'est à dire "34115aac-0ff5-4859-8f43-10e8db23602b", on aperçoie que le résulta nous retourne : { id: '34115aac-0ff5-4859-8f43-10e8db23602b', name: 'Garden' }.
+        Danc si on a trouver le parant alors on a les enfants aussi
+      */
+     
+     // Recupère tout les produits appartenant à la catégorie demandé 
+      const categoryId = parent.id;
+      return products.filter((product) => product.categoryId === categoryId);
     }
   }
-}
+};
 
 const server = new ApolloServer({
   typeDefs,
