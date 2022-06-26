@@ -1,8 +1,12 @@
 const { gql } = require("apollo-server");
 
+/*
+  filter parmètre avec l'objcet filter dont le status est onSale
+*/
+
 exports.typeDefs = gql`
   type Query {
-    products: [Products!]!
+    products(filter: ProductsFilterInput): [Products!]! # filter parmètre avec l'objcet filter dont le status est onSale
     product(id: ID!): Product
     categories: [Category!]!
     category(id: ID!): Category
@@ -29,7 +33,7 @@ exports.typeDefs = gql`
   type Category {
     id: ID!
     name: String!
-    products: [Product!]!
+    products(filter: ProductsFilterInput): [Product!]! #filter parmètre avec l'objcet filter dont le status est onSale
   }
   type Review {
     id: ID!
@@ -37,5 +41,8 @@ exports.typeDefs = gql`
     title: String!
     comment: String!
     rating: Int!
+  }
+  input ProductsFilterInput{ # filter parmètre avec l'objcet filter dont le status est onSale
+    onSale: Boolean
   }
 `;
